@@ -1,4 +1,3 @@
-import { ApolloClient } from "apollo-client";
 import { ApolloLink } from "apollo-link";
 import { setContext } from "apollo-link-context";
 import { ErrorResponse, onError } from "apollo-link-error";
@@ -18,26 +17,6 @@ export function setAuthToken(token: string) {
   dispatchEvent(authEvent);
 }
 
-export function removeAuthToken() {
-  localStorage.removeItem("token");
-  dispatchEvent(authEvent);
-}
-
-export function clearStorage(): void {
-  localStorage.clear();
-  dispatchEvent(authEvent);
-}
-
-export function fireSignOut(client?: ApolloClient<any>): void {
-  clearStorage();
-  if (navigator.credentials && navigator.credentials.preventSilentAccess) {
-    navigator.credentials.preventSilentAccess();
-  }
-  if (client) {
-    client.resetStore();
-  }
-}
-
 interface ResponseError extends ErrorResponse {
   networkError?: Error & {
     statusCode?: number;
@@ -48,12 +27,10 @@ interface ResponseError extends ErrorResponse {
 // possibly remove callback here and use event emitter
 export const invalidTokenLinkWithTokenHandler = (
   tokenExpirationCallback: () => void
-): {
-  link: ApolloLink;
-} => {
+): ApolloLink => {
   const link = onError((error: ResponseError) => {
     const isTokenExpired = error.graphQLErrors?.some(
-      error => error.extensions?.exception?.code === "JSONWebTokenExpired"
+      (error) => error.extensions?.exception?.code === "JSONWebTokenExpired"
     );
     if (
       isTokenExpired ||
@@ -62,7 +39,7 @@ export const invalidTokenLinkWithTokenHandler = (
       tokenExpirationCallback();
     }
   });
-  return { link };
+  return link;
 };
 
 export const authLink = setContext((_, context) => {

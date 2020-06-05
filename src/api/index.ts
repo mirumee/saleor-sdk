@@ -1,12 +1,14 @@
 import ApolloClient from "apollo-client";
 
 import { defaultConfig } from "../config";
+import { LocalStorageManager } from "../data";
+import { ApolloClientManager } from "../data/ApolloClientManager";
+import { LocalStorageHandler } from "../helpers/LocalStorageHandler";
 import { JobsManager } from "../jobs";
-import { NetworkManager } from "../network";
-import { CheckoutRepositoryManager, LocalRepository } from "../repository";
 import { SaleorState } from "../state";
-import { Config } from "../types";
+import { CustomConfig } from "../types";
 import { APIProxy } from "./APIProxy";
+import { AuthAPI } from "./Auth";
 import { SaleorCartAPI } from "./Cart";
 import { SaleorCheckoutAPI } from "./Checkout";
 
@@ -14,6 +16,7 @@ export * from "./Checkout";
 export * from "./Cart";
 
 export class SaleorAPI {
+  auth: AuthAPI;
   checkout: SaleorCheckoutAPI;
   cart: SaleorCartAPI;
 
@@ -26,7 +29,7 @@ export class SaleorAPI {
   constructor(
     client: ApolloClient<any>,
     apiProxy: APIProxy,
-    config?: Config,
+    config: CustomConfig,
     onStateUpdate?: () => any
   ) {
     this.legacyAPIProxy = apiProxy;
@@ -38,39 +41,42 @@ export class SaleorAPI {
         ...config?.loadOnStart,
       },
     };
-    const { loadOnStart } = finalConfig;
 
-    const repository = new LocalRepository();
-    const networkManager = new NetworkManager(client);
-    const saleorState = new SaleorState(repository, networkManager);
-    const checkoutRepositoryManager = new CheckoutRepositoryManager(
-      repository,
+    const localStorageHandler = new LocalStorageHandler();
+    const apolloClientManager = new ApolloClientManager(client);
+    const jobsManager = new JobsManager(
+      localStorageHandler,
+      apolloClientManager
+    );
+    const saleorState = new SaleorState(
+      finalConfig,
+      localStorageHandler,
+      apolloClientManager,
+      jobsManager
+    );
+    const localStorageManager = new LocalStorageManager(
+      localStorageHandler,
       saleorState
     );
-    const jobsManager = new JobsManager(repository, networkManager);
 
     if (onStateUpdate) {
       saleorState.subscribeToNotifiedChanges(onStateUpdate);
     }
 
-    this.checkout = new SaleorCheckoutAPI(
-      saleorState,
-      loadOnStart.checkout,
-      jobsManager
-    );
+    this.auth = new AuthAPI(saleorState, jobsManager);
+    this.checkout = new SaleorCheckoutAPI(saleorState, jobsManager);
     this.cart = new SaleorCartAPI(
-      checkoutRepositoryManager,
-      networkManager,
+      localStorageManager,
+      apolloClientManager,
       saleorState,
-      loadOnStart.cart,
       jobsManager
     );
 
-    this.legacyAPIProxy.attachAuthListener(authenticated => {
+    this.legacyAPIProxy.attachAuthListener((authenticated) => {
       if (!authenticated) {
-        repository.setCheckout({});
-        repository.setPayment({});
-        repository.setJobs(null);
+        localStorageHandler.setCheckout({});
+        localStorageHandler.setPayment({});
+        localStorageHandler.setJobs(null);
       }
     });
   }

@@ -3,7 +3,8 @@ import React from "react";
 
 import { APIProxy } from "../api/APIProxy";
 import { RequireAtLeastOne } from "../tsHelpers";
-import { useAuth, useSaleorClient } from "./helpers";
+import { useSaleorClient } from "./helpers";
+import { useAuth } from "./hooks";
 import {
   ApolloErrorWithUserInput,
   Options,

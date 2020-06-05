@@ -1,180 +1,177 @@
 import { round } from "lodash";
 
-import { DataErrorCheckoutTypes } from "../api/Checkout/types";
+import { ApolloClientManager } from "../data/ApolloClientManager";
+import { PaymentGateway } from "../fragments/gqlTypes/PaymentGateway";
+import { User } from "../fragments/gqlTypes/User";
 import { NamedObservable } from "../helpers";
-import { NetworkManager } from "../network";
-import { GetShopPaymentGateways_shop_availablePaymentGateways } from "../queries/gqlTypes/GetShopPaymentGateways";
-import { ApolloErrorWithUserInput } from "../react/types";
 import {
   ICheckoutModel,
   IPaymentModel,
-  LocalRepository,
+  LocalStorageEvents,
+  LocalStorageHandler,
   LocalStorageItems,
-} from "../repository";
-import { ISaleorState, ISaleorStateSummeryPrices, StateItems } from "./types";
+} from "../helpers/LocalStorageHandler";
+import { JobsManager } from "../jobs";
+import { Config } from "../types";
+import { ISaleorStateSummeryPrices, StateItems } from "./types";
 
-export class SaleorState extends NamedObservable<StateItems>
-  implements ISaleorState {
+export interface SaleorStateLoaded {
+  user: boolean;
+  signInToken: boolean;
+  checkout: boolean;
+  payment: boolean;
+  paymentGateways: boolean;
+  summaryPrices: boolean;
+}
+
+const defaultSaleorStateLoaded = {
+  checkout: false,
+  payment: false,
+  paymentGateways: false,
+  signInToken: false,
+  summaryPrices: false,
+  user: false,
+};
+
+export class SaleorState extends NamedObservable<StateItems> {
+  user?: User | null;
+  signInToken?: string | null;
   checkout?: ICheckoutModel;
   promoCode?: string;
   selectedShippingAddressId?: string;
   selectedBillingAddressId?: string;
-  payment?: IPaymentModel;
+  payment?: IPaymentModel | null;
   summaryPrices?: ISaleorStateSummeryPrices;
   // Should be changed it in future to shop object containing payment gateways besides all the shop data
-  availablePaymentGateways?: GetShopPaymentGateways_shop_availablePaymentGateways[];
+  availablePaymentGateways?: PaymentGateway[] | null;
 
-  private repository: LocalRepository;
-  private networkManager: NetworkManager;
+  loaded: SaleorStateLoaded;
 
-  constructor(repository: LocalRepository, networkManager: NetworkManager) {
+  private localStorageHandler: LocalStorageHandler;
+  private apolloClientManager: ApolloClientManager;
+  private jobsManager: JobsManager;
+
+  constructor(
+    config: Config,
+    localStorageHandler: LocalStorageHandler,
+    apolloClientManager: ApolloClientManager,
+    jobsManager: JobsManager
+  ) {
     super();
-    this.repository = repository;
-    this.networkManager = networkManager;
+    this.localStorageHandler = localStorageHandler;
+    this.apolloClientManager = apolloClientManager;
+    this.jobsManager = jobsManager;
 
-    repository.subscribeToChange(
+    this.loaded = defaultSaleorStateLoaded;
+
+    this.subscribeStateToChanges();
+    this.initializeState(config);
+  }
+
+  /**
+   * Subscribes to particular changes occuring in data sources like apollo cache or local storage.
+   * Every update in data source will result in update of respective class member.
+   */
+  private subscribeStateToChanges = () => {
+    this.localStorageHandler.subscribeToChange(
       LocalStorageItems.CHECKOUT,
       this.onCheckoutUpdate
     );
-    repository.subscribeToChange(
+    this.localStorageHandler.subscribeToChange(
       LocalStorageItems.PAYMENT,
       this.onPaymentUpdate
     );
-  }
+    this.apolloClientManager.subscribeToPaymentGatewaysChange(
+      this.onPaymentGatewaysUpdate
+    );
+    this.localStorageHandler.subscribeToChange(
+      LocalStorageItems.TOKEN,
+      this.onSignInTokenUpdate
+    );
+    this.localStorageHandler.subscribeToChange(
+      LocalStorageEvents.CLEAR,
+      this.onClearLocalStorage
+    );
+    this.apolloClientManager.subscribeToUserChange(this.onUserUpdate);
+  };
 
-  provideCheckout = async (
-    onError: (
-      error: ApolloErrorWithUserInput | any,
-      type: DataErrorCheckoutTypes
-    ) => any,
-    forceReload?: boolean
-  ) => {
-    if (this.isCheckoutCreatedOnline() && !forceReload) {
-      return;
+  /**
+   * Initialize class members with cached or fetched data.
+   */
+  private initializeState = async (config: Config) => {
+    if (config.loadOnStart.auth) {
+      this.onSignInTokenUpdate(this.localStorageHandler.getSignInToken());
+      await this.jobsManager.run("auth", "provideUser", undefined);
     }
-
-    if (navigator.onLine) {
-      await this.provideCheckoutOnline(onError);
-    } else {
-      this.provideCheckoutOffline(forceReload);
+    if (config.loadOnStart.checkout) {
+      await this.jobsManager.run("checkout", "provideCheckout", {
+        isUserSignedIn: !!this.user,
+      });
+      this.onPaymentUpdate(this.localStorageHandler.getPayment());
+      await this.jobsManager.run(
+        "checkout",
+        "providePaymentGateways",
+        undefined
+      );
     }
-
-    return;
   };
 
-  providePayment = async (forceReload?: boolean) => {
-    this.providePaymentOffline(forceReload);
-
-    return;
+  private onLoadedUpdate = (newLoaded: Partial<SaleorStateLoaded>) => {
+    this.loaded = {
+      ...this.loaded,
+      ...newLoaded,
+    };
+    this.notifyChange(StateItems.LOADED, this.loaded);
+  };
+  private onClearLocalStorage = () => {
+    this.onSignInTokenUpdate(null);
+    this.onUserUpdate(null);
+    this.onCheckoutUpdate();
+    this.onPaymentUpdate();
   };
 
-  providePaymentGateways = async (
-    onError: (
-      error: ApolloErrorWithUserInput | any,
-      type: DataErrorCheckoutTypes
-    ) => any
-  ) => {
-    await this.providePaymentGatewaysOnline(onError);
+  private onSignInTokenUpdate = (token: string | null) => {
+    this.signInToken = token;
+    this.notifyChange(StateItems.SIGN_IN_TOKEN, this.signInToken);
+    this.onLoadedUpdate({
+      signInToken: true,
+    });
   };
-
-  private onCheckoutUpdate = (checkout: ICheckoutModel) => {
+  private onUserUpdate = (user: User | null) => {
+    this.user = user;
+    this.notifyChange(StateItems.USER, this.user);
+    this.onLoadedUpdate({
+      user: true,
+    });
+  };
+  private onCheckoutUpdate = (checkout?: ICheckoutModel) => {
     this.checkout = checkout;
     this.summaryPrices = this.calculateSummaryPrices(checkout);
     this.notifyChange(StateItems.CHECKOUT, this.checkout);
     this.notifyChange(StateItems.SUMMARY_PRICES, this.summaryPrices);
+    this.onLoadedUpdate({
+      checkout: true,
+      summaryPrices: true,
+    });
   };
-  private onPaymentUpdate = (payment: IPaymentModel) => {
+  private onPaymentUpdate = (payment?: IPaymentModel | null) => {
     this.payment = payment;
     this.notifyChange(StateItems.PAYMENT, this.payment);
+    this.onLoadedUpdate({
+      payment: true,
+    });
   };
   private onPaymentGatewaysUpdate = (
-    paymentGateways?: GetShopPaymentGateways_shop_availablePaymentGateways[]
+    paymentGateways?: PaymentGateway[] | null
   ) => {
     this.availablePaymentGateways = paymentGateways;
     this.notifyChange(
       StateItems.PAYMENT_GATEWAYS,
       this.availablePaymentGateways
     );
-  };
-
-  private isCheckoutCreatedOnline = () => this.checkout?.id;
-
-  private provideCheckoutOnline = async (
-    onError: (
-      error: ApolloErrorWithUserInput | any,
-      type: DataErrorCheckoutTypes
-    ) => any
-  ) => {
-    // 1. Try to take checkout from backend database
-    const checkout = this.repository.getCheckout();
-
-    if (checkout?.token) {
-      const { data, error } = await this.networkManager.getCheckout(
-        checkout?.token
-      );
-
-      if (error) {
-        onError(error, DataErrorCheckoutTypes.GET_CHECKOUT);
-      } else if (data) {
-        this.repository.setCheckout(data);
-        // this.updateCheckout(data);
-        return;
-      }
-    }
-
-    // 2. Try to take checkout from local storage
-    const checkoutModel: ICheckoutModel | null = this.repository.getCheckout();
-    if (checkoutModel) {
-      this.onCheckoutUpdate(checkoutModel);
-      return;
-    }
-  };
-
-  private provideCheckoutOffline = (forceReload?: boolean) => {
-    // 1. Try to take checkout from runtime memory (if exist in memory - has any checkout data)
-    if (this.checkout && !forceReload) {
-      return;
-    }
-
-    // 2. Try to take checkout from local storage
-    const checkoutModel: ICheckoutModel | null = this.repository.getCheckout();
-
-    if (checkoutModel) {
-      this.onCheckoutUpdate(checkoutModel);
-    } else {
-      this.repository.setCheckout({});
-    }
-  };
-
-  private providePaymentOffline = (forceReload?: boolean) => {
-    // 1. Try to take checkout from runtime memory (if exist in memory - has any checkout data)
-    if (this.payment && !forceReload) {
-      return;
-    }
-
-    // 2. Try to take checkout from local storage
-    const paymentModel: ICheckoutModel | null = this.repository.getPayment();
-
-    if (paymentModel) {
-      this.onPaymentUpdate(paymentModel);
-    } else {
-      this.repository.setPayment({});
-    }
-  };
-
-  private providePaymentGatewaysOnline = async (
-    onError: (
-      error: ApolloErrorWithUserInput | any,
-      type: DataErrorCheckoutTypes
-    ) => any
-  ) => {
-    const { data, error } = await this.networkManager.getPaymentGateways();
-
-    if (error) {
-      onError(error, DataErrorCheckoutTypes.GET_PAYMENT_GATEWAYS);
-    }
-
-    this.onPaymentGatewaysUpdate(data);
+    this.onLoadedUpdate({
+      paymentGateways: true,
+    });
   };
 
   private calculateSummaryPrices(

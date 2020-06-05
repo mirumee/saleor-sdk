@@ -1,15 +1,20 @@
 /* tslint:disable */
 /* eslint-disable */
+// @generated
 // This file was automatically generated and should not be edited.
 
-import { AddressInput } from "./../../gqlTypes/globalTypes";
+import { AddressInput, CheckoutErrorCode } from "./../../gqlTypes/globalTypes";
 
 // ====================================================
 // GraphQL mutation operation: UpdateCheckoutShippingAddress
 // ====================================================
 
 export interface UpdateCheckoutShippingAddress_checkoutShippingAddressUpdate_errors {
-  __typename: "Error";
+  __typename: "CheckoutError";
+  /**
+   * The error code.
+   */
+  code: CheckoutErrorCode;
   /**
    * Name of a field that caused the error. A value of `null` indicates that the
    * error isn't associated with a particular field.
@@ -471,9 +476,9 @@ export interface UpdateCheckoutShippingAddress_checkoutShippingAddressUpdate_che
   name: string;
   sku: string;
   /**
-   * Quantity of a product available for sale.
+   * Quantity of a product available for sale in one checkout.
    */
-  stockQuantity: number;
+  quantityAvailable: number;
   /**
    * Whether the variant is in stock and visible or not.
    */
@@ -561,9 +566,6 @@ export interface UpdateCheckoutShippingAddress_checkoutShippingAddressUpdate_che
 
 export interface UpdateCheckoutShippingAddress_checkoutShippingAddressUpdate {
   __typename: "CheckoutShippingAddressUpdate";
-  /**
-   * List of errors that occurred executing the mutation.
-   */
   errors: UpdateCheckoutShippingAddress_checkoutShippingAddressUpdate_errors[];
   /**
    * An updated checkout.
@@ -1021,9 +1023,9 @@ export interface UpdateCheckoutShippingAddress_checkoutEmailUpdate_checkout_line
   name: string;
   sku: string;
   /**
-   * Quantity of a product available for sale.
+   * Quantity of a product available for sale in one checkout.
    */
-  stockQuantity: number;
+  quantityAvailable: number;
   /**
    * Whether the variant is in stock and visible or not.
    */
@@ -1110,7 +1112,11 @@ export interface UpdateCheckoutShippingAddress_checkoutEmailUpdate_checkout {
 }
 
 export interface UpdateCheckoutShippingAddress_checkoutEmailUpdate_errors {
-  __typename: "Error";
+  __typename: "CheckoutError";
+  /**
+   * The error code.
+   */
+  code: CheckoutErrorCode;
   /**
    * Name of a field that caused the error. A value of `null` indicates that the
    * error isn't associated with a particular field.
@@ -1128,9 +1134,6 @@ export interface UpdateCheckoutShippingAddress_checkoutEmailUpdate {
    * An updated checkout.
    */
   checkout: UpdateCheckoutShippingAddress_checkoutEmailUpdate_checkout | null;
-  /**
-   * List of errors that occurred executing the mutation.
-   */
   errors: UpdateCheckoutShippingAddress_checkoutEmailUpdate_errors[];
 }
 

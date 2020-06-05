@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+// @generated
 // This file was automatically generated and should not be edited.
 
 import { PaymentInput, PaymentErrorCode } from "./../../gqlTypes/globalTypes";
@@ -7,19 +8,6 @@ import { PaymentInput, PaymentErrorCode } from "./../../gqlTypes/globalTypes";
 // ====================================================
 // GraphQL mutation operation: CreateCheckoutPayment
 // ====================================================
-
-export interface CreateCheckoutPayment_checkoutPaymentCreate_errors {
-  __typename: "Error";
-  /**
-   * Name of a field that caused the error. A value of `null` indicates that the
-   * error isn't associated with a particular field.
-   */
-  field: string | null;
-  /**
-   * The error message.
-   */
-  message: string | null;
-}
 
 export interface CreateCheckoutPayment_checkoutPaymentCreate_checkout_totalPrice_gross {
   __typename: "Money";
@@ -471,9 +459,9 @@ export interface CreateCheckoutPayment_checkoutPaymentCreate_checkout_lines_vari
   name: string;
   sku: string;
   /**
-   * Quantity of a product available for sale.
+   * Quantity of a product available for sale in one checkout.
    */
-  stockQuantity: number;
+  quantityAvailable: number;
   /**
    * Whether the variant is in stock and visible or not.
    */
@@ -597,8 +585,12 @@ export interface CreateCheckoutPayment_checkoutPaymentCreate_payment {
   creditCard: CreateCheckoutPayment_checkoutPaymentCreate_payment_creditCard | null;
 }
 
-export interface CreateCheckoutPayment_checkoutPaymentCreate_paymentErrors {
+export interface CreateCheckoutPayment_checkoutPaymentCreate_errors {
   __typename: "PaymentError";
+  /**
+   * The error code.
+   */
+  code: PaymentErrorCode;
   /**
    * Name of a field that caused the error. A value of `null` indicates that the
    * error isn't associated with a particular field.
@@ -608,18 +600,10 @@ export interface CreateCheckoutPayment_checkoutPaymentCreate_paymentErrors {
    * The error message.
    */
   message: string | null;
-  /**
-   * The error code.
-   */
-  code: PaymentErrorCode;
 }
 
 export interface CreateCheckoutPayment_checkoutPaymentCreate {
   __typename: "CheckoutPaymentCreate";
-  /**
-   * List of errors that occurred executing the mutation.
-   */
-  errors: CreateCheckoutPayment_checkoutPaymentCreate_errors[];
   /**
    * Related checkout object.
    */
@@ -628,7 +612,7 @@ export interface CreateCheckoutPayment_checkoutPaymentCreate {
    * A newly created payment.
    */
   payment: CreateCheckoutPayment_checkoutPaymentCreate_payment | null;
-  paymentErrors: CreateCheckoutPayment_checkoutPaymentCreate_paymentErrors[];
+  errors: CreateCheckoutPayment_checkoutPaymentCreate_errors[];
 }
 
 export interface CreateCheckoutPayment {

@@ -6,11 +6,10 @@ import {
 } from "apollo-client";
 import { GraphQLError } from "graphql";
 
-import { fireSignOut, getAuthToken, setAuthToken } from "../auth";
+import { getAuthToken, setAuthToken } from "../auth";
 import { MUTATIONS } from "../mutations";
 import { TokenAuth } from "../mutations/gqlTypes/TokenAuth";
 import { QUERIES } from "../queries";
-import { UserDetails } from "../queries/gqlTypes/UserDetails";
 import { RequireAtLeastOne } from "../tsHelpers";
 import {
   InferOptions,
@@ -25,96 +24,79 @@ import {
   isDataEmpty,
   mergeEdges,
 } from "../utils";
+import { BROWSER_NO_CREDENTIAL_API_MESSAGE } from "./Auth";
 
 export class APIProxy {
-  getAttributes = this.watchQuery(QUERIES.Attributes, data => data.attributes);
+  getAttributes = this.watchQuery(
+    QUERIES.Attributes,
+    (data) => data.attributes
+  );
 
   getProductDetails = this.watchQuery(
     QUERIES.ProductDetails,
-    data => data.product
+    (data) => data.product
   );
 
-  getProductList = this.watchQuery(QUERIES.ProductList, data => data.products);
+  getProductList = this.watchQuery(
+    QUERIES.ProductList,
+    (data) => data.products
+  );
 
   getCategoryDetails = this.watchQuery(
     QUERIES.CategoryDetails,
-    data => data.category
+    (data) => data.category
   );
 
-  getOrdersByUser = this.watchQuery(QUERIES.OrdersByUser, data =>
+  getOrdersByUser = this.watchQuery(QUERIES.OrdersByUser, (data) =>
     data.me ? data.me.orders : null
   );
 
   getOrderDetails = this.watchQuery(
     QUERIES.OrderDetails,
-    data => data.orderByToken
+    (data) => data.orderByToken
   );
 
   getVariantsProducts = this.watchQuery(
     QUERIES.VariantsProducts,
-    data => data.productVariants
+    (data) => data.productVariants
   );
 
-  getShopDetails = this.watchQuery(QUERIES.GetShopDetails, data => data);
+  getShopDetails = this.watchQuery(QUERIES.GetShopDetails, (data) => data);
 
   setUserDefaultAddress = this.fireQuery(
     MUTATIONS.AddressTypeUpdate,
-    data => data!.accountSetDefaultAddress
+    (data) => data!.accountSetDefaultAddress
   );
 
   setDeleteUserAddress = this.fireQuery(
     MUTATIONS.DeleteUserAddress,
-    data => data!.accountAddressDelete
+    (data) => data!.accountAddressDelete
   );
 
   setCreateUserAddress = this.fireQuery(
     MUTATIONS.CreateUserAddress,
-    data => data!.accountAddressCreate
+    (data) => data!.accountAddressCreate
   );
 
   setUpdateuserAddress = this.fireQuery(
     MUTATIONS.UpdateUserAddress,
-    data => data!.accountAddressUpdate
+    (data) => data!.accountAddressUpdate
   );
 
   setAccountUpdate = this.fireQuery(
     MUTATIONS.AccountUpdate,
-    data => data!.accountUpdate
+    (data) => data!.accountUpdate
   );
 
-  setPasswordChange = this.fireQuery(MUTATIONS.PasswordChange, data => data);
+  setPasswordChange = this.fireQuery(MUTATIONS.PasswordChange, (data) => data);
 
-  setPassword = this.fireQuery(MUTATIONS.SetPassword, data => data);
+  setPassword = this.fireQuery(MUTATIONS.SetPassword, (data) => data);
 
   client: ApolloClient<any>;
 
   constructor(client: ApolloClient<any>) {
     this.client = client;
   }
-
-  getUserDetails = (
-    variables: InferOptions<QUERIES["UserDetails"]>["variables"],
-    options: Omit<InferOptions<QUERIES["UserDetails"]>, "variables"> & {
-      onUpdate: (data: UserDetails["me"] | null) => void;
-    }
-  ) => {
-    if (this.isLoggedIn()) {
-      return this.watchQuery(QUERIES.UserDetails, data => data.me)(
-        variables,
-        options
-      );
-    }
-    if (options.onUpdate) {
-      options.onUpdate(null);
-    }
-    return {
-      refetch: () =>
-        new Promise<{ data: UserDetails["me"] }>((resolve, _reject) => {
-          resolve({ data: null });
-        }),
-      unsubscribe: () => undefined,
-    };
-  };
 
   signIn = (
     variables: InferOptions<MUTATIONS["TokenAuth"]>["variables"],
@@ -126,7 +108,7 @@ export class APIProxy {
 
         const data = await this.fireQuery(
           MUTATIONS.TokenAuth,
-          data => data!.tokenCreate
+          (data) => data!.tokenCreate
         )(variables, {
           ...options,
           update: (proxy, data) => {
@@ -138,12 +120,19 @@ export class APIProxy {
             if (!handledData.errors && handledData.data) {
               setAuthToken(handledData.data.token);
               if (window.PasswordCredential && variables) {
-                navigator.credentials.store(
-                  new window.PasswordCredential({
-                    id: variables.email,
-                    password: variables.password,
-                  })
-                );
+                navigator.credentials
+                  .store(
+                    new window.PasswordCredential({
+                      id: variables.email,
+                      password: variables.password,
+                    })
+                  )
+                  .catch((credentialsError) =>
+                    console.warn(
+                      BROWSER_NO_CREDENTIAL_API_MESSAGE,
+                      credentialsError
+                    )
+                  );
               }
             }
             if (options && options.update) {
@@ -153,17 +142,6 @@ export class APIProxy {
         });
 
         resolve(data);
-      } catch (e) {
-        reject(e);
-      }
-    });
-
-  signOut = () =>
-    new Promise(async (resolve, reject) => {
-      try {
-        fireSignOut(this.client);
-
-        resolve();
       } catch (e) {
         reject(e);
       }
@@ -226,7 +204,7 @@ export class APIProxy {
       }
 
       const subscription = observable.subscribe(
-        result => {
+        (result) => {
           const { data, errors: apolloErrors } = result;
           const errorHandledData = handleDataErrors(
             mapFn,
@@ -246,7 +224,7 @@ export class APIProxy {
             }
           }
         },
-        error => {
+        (error) => {
           if (onError) {
             onError(error);
           }
@@ -281,7 +259,7 @@ export class APIProxy {
                 );
 
                 // use new result for metadata and mutate existing data
-                Object.keys(prevResultRef).forEach(key => {
+                Object.keys(prevResultRef).forEach((key) => {
                   prevResultRef[key] = newResultRef[key];
                 });
                 prevResultRef.edges = mergedEdges;

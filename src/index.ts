@@ -6,7 +6,7 @@ import { RetryLink } from "apollo-link-retry";
 
 import { SaleorAPI } from "./api";
 import { APIProxy } from "./api/APIProxy";
-import { Config } from "./types";
+import { CustomConfig } from "./types";
 
 const getLink = (
   apiUrl: string,
@@ -37,7 +37,7 @@ export class SaleorManager {
   private api: SaleorAPI;
   private apiChangeListener: ((api: SaleorAPI) => any) | undefined;
 
-  constructor(client: ApolloClient<any>, config?: Config) {
+  constructor(client: ApolloClient<any>, config: CustomConfig) {
     this.apiProxy = new APIProxy(client);
     this.api = new SaleorAPI(
       client,
@@ -62,3 +62,7 @@ export class SaleorManager {
     }
   };
 }
+
+export * from "./auth";
+export * from "./gqlTypes/globalTypes";
+export * from "./react";

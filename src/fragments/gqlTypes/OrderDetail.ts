@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+// @generated
 // This file was automatically generated and should not be edited.
 
 import { PaymentChargeStatusEnum, OrderStatus } from "./../../gqlTypes/globalTypes";
@@ -229,9 +230,9 @@ export interface OrderDetail_lines_variant {
   name: string;
   sku: string;
   /**
-   * Quantity of a product available for sale.
+   * Quantity of a product available for sale in one checkout.
    */
-  stockQuantity: number;
+  quantityAvailable: number;
   /**
    * Whether the variant is in stock and visible or not.
    */

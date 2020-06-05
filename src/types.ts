@@ -27,8 +27,14 @@ export type WatchQueryData<T extends (...args: any) => any> = ReturnType<
   : never;
 
 export interface Config {
+  apiUrl: string;
   loadOnStart: {
+    auth: boolean;
     checkout: boolean;
-    cart: boolean;
   };
 }
+
+export type DefaultConfig = Pick<Config, "loadOnStart">;
+
+export type CustomConfig = Omit<Config, keyof DefaultConfig> &
+  Partial<DefaultConfig>;

@@ -1,12 +1,9 @@
 import { Checkout_availableShippingMethods } from "../../fragments/gqlTypes/Checkout";
-import { GetShopPaymentGateways_shop_availablePaymentGateways } from "../../queries/gqlTypes/GetShopPaymentGateways";
 import {
   ICheckoutModelPrice,
   ICheckoutModelPriceValue,
   IPaymentCreditCard,
-} from "../../repository";
-
-import { PromiseQueuedResponse, PromiseRunResponse } from "../types";
+} from "../../helpers/LocalStorageHandler";
 
 export type IPrice = ICheckoutModelPrice | null | undefined;
 export type IPriceValue = ICheckoutModelPriceValue | null | undefined;
@@ -29,7 +26,6 @@ export interface IAddress {
 }
 
 export type IAvailableShippingMethods = Checkout_availableShippingMethods[];
-export type IAvailablePaymentGateways = GetShopPaymentGateways_shop_availablePaymentGateways[];
 
 export interface IShippingMethod {
   id: string;
@@ -75,47 +71,4 @@ export enum DataErrorCheckoutTypes {
   "COMPLETE_CHECKOUT",
   "GET_CHECKOUT",
   "GET_PAYMENT_GATEWAYS",
-}
-
-export interface ISaleorCheckoutAPI {
-  loaded: boolean;
-  checkout?: ICheckout | null;
-  promoCodeDiscount?: IPromoCodeDiscount;
-  billingAsShipping?: boolean;
-  selectedShippingAddressId?: string;
-  selectedBillingAddressId?: string;
-  availableShippingMethods?: IAvailableShippingMethods;
-  availablePaymentGateways?: IAvailablePaymentGateways;
-  payment?: IPayment;
-  load: () => PromiseQueuedResponse;
-  setBillingAddress: (
-    billingAddress: IAddress,
-    email?: string
-  ) => PromiseRunResponse<DataErrorCheckoutTypes, FunctionErrorCheckoutTypes>;
-  setShippingAddress: (
-    shippingAddress: IAddress,
-    email: string
-  ) => PromiseRunResponse<DataErrorCheckoutTypes, FunctionErrorCheckoutTypes>;
-  setShippingMethod: (
-    shippingMethodId: string
-  ) => PromiseRunResponse<DataErrorCheckoutTypes, FunctionErrorCheckoutTypes>;
-  setBillingAsShippingAddress: () => PromiseRunResponse<
-    DataErrorCheckoutTypes,
-    FunctionErrorCheckoutTypes
-  >;
-  addPromoCode: (
-    promoCode: string
-  ) => PromiseRunResponse<DataErrorCheckoutTypes, FunctionErrorCheckoutTypes>;
-  removePromoCode: (
-    promoCode: string
-  ) => PromiseRunResponse<DataErrorCheckoutTypes, FunctionErrorCheckoutTypes>;
-  createPayment: (
-    gateway: string,
-    token: string,
-    creditCard?: ICreditCard
-  ) => PromiseRunResponse<DataErrorCheckoutTypes, FunctionErrorCheckoutTypes>;
-  completeCheckout: () => PromiseRunResponse<
-    DataErrorCheckoutTypes,
-    FunctionErrorCheckoutTypes
-  >;
 }

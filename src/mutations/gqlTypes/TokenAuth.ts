@@ -1,13 +1,20 @@
 /* tslint:disable */
 /* eslint-disable */
+// @generated
 // This file was automatically generated and should not be edited.
+
+import { AccountErrorCode } from "./../../gqlTypes/globalTypes";
 
 // ====================================================
 // GraphQL mutation operation: TokenAuth
 // ====================================================
 
 export interface TokenAuth_tokenCreate_errors {
-  __typename: "Error";
+  __typename: "AccountError";
+  /**
+   * The error code.
+   */
+  code: AccountErrorCode;
   /**
    * Name of a field that caused the error. A value of `null` indicates that the
    * error isn't associated with a particular field.
@@ -163,6 +170,9 @@ export interface TokenAuth_tokenCreate_user {
 export interface TokenAuth_tokenCreate {
   __typename: "CreateToken";
   token: string | null;
+  /**
+   * List of errors that occurred executing the mutation.
+   */
   errors: TokenAuth_tokenCreate_errors[];
   /**
    * A user instance.

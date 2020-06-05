@@ -1,10 +1,14 @@
+import { DataErrorAuthTypes } from "../../api/Auth/types";
 import { DataErrorCheckoutTypes } from "../../api/Checkout/types";
 import { ErrorCartTypes } from "../../jobs/Cart";
 import { ApolloErrorWithUserInput } from "../../react/types";
 
 import { IErrorListener } from "./types";
 
-export type ErrorTypes = DataErrorCheckoutTypes | ErrorCartTypes;
+export type ErrorTypes =
+  | DataErrorAuthTypes
+  | DataErrorCheckoutTypes
+  | ErrorCartTypes;
 
 export class ErrorListener implements IErrorListener {
   private errorListeners: Array<

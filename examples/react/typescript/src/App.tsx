@@ -1,7 +1,7 @@
 import React from "react";
 
 import "./App.css";
-import { useProductList } from "@saleor/sdk/react";
+import { useProductList } from "@saleor/sdk/lib/react";
 
 const App: React.FC = () => {
   const { data: products, loading } = useProductList({

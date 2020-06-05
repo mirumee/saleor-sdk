@@ -3,12 +3,17 @@ import {
   Checkout_lines_variant_attributes,
   Checkout_lines_variant_pricing,
   Checkout_lines_variant_product,
-} from "../fragments/gqlTypes/Checkout";
+} from "../../fragments/gqlTypes/Checkout";
+import { IQueuedJobs } from "../../jobs/QueuedJobs";
 
 export enum LocalStorageItems {
   JOB_QUEUE_CHECKOUT = "job_queueCheckout",
+  TOKEN = "token",
   CHECKOUT = "data_checkout",
   PAYMENT = "data_payment",
+}
+export enum LocalStorageEvents {
+  CLEAR = "clear",
 }
 
 export interface ICheckoutModelLineTotalPrice {
@@ -17,7 +22,7 @@ export interface ICheckoutModelLineTotalPrice {
 }
 
 export interface ICheckoutModelLineVariant {
-  stockQuantity?: number;
+  quantityAvailable?: number;
   id: string;
   name?: string;
   sku?: string;
@@ -124,27 +129,8 @@ export interface IOrderModel {
   number?: string | null;
 }
 
-// export interface IJobsModel {
-//   cart: {
-//     setCartItem?: boolean;
-//   };
-//   checkout: {
-//     setPromoCode?: boolean;
-//   };
-// }
+type IQueuedJobsState<T> = {
+  [P in keyof T]?: Partial<Record<keyof T[P], boolean>>;
+};
 
-// export const JobsModelInitialState: IJobsModel = {
-//   cart: {
-//     setCartItem: false,
-//   },
-//   checkout: {
-//     setPromoCode: false,
-//   },
-// };
-
-export interface ILocalRepository {
-  getCheckout(): ICheckoutModel | null;
-  setCheckout(checkout: ICheckoutModel | null): void;
-  getPayment(): IPaymentModel | null;
-  setPayment(payment: IPaymentModel | null): void;
-}
+export type IJobsModel = IQueuedJobsState<IQueuedJobs>;

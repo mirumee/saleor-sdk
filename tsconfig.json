@@ -7,7 +7,7 @@
     "lib": ["es2017", "dom", "esnext"],
     "module": "commonjs",
     "noUnusedLocals": true,
-    "outDir": "build",
+    "outDir": "lib",
     // Well, path aliasing doesn't work
     // ref https://github.com/microsoft/TypeScript/issues/10866
     "paths": {},
