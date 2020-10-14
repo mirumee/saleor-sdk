@@ -8,7 +8,7 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": ["./tsconfig.eslint.json", "./**/tsconfig.eslint.json"]
+    "project": ["./tsconfig.eslint.json"]
   },
   "plugins": ["import", "react", "prettier"],
   "rules": {
@@ -25,6 +25,7 @@
     "react/jsx-props-no-spreading": "off",
     "react/jsx-wrap-multilines": "off",
     "react/prop-types": "off",
+    "react/react-in-jsx-scope": "off",
     "@typescript-eslint/camelcase": "off",
     "@typescript-eslint/indent": "off",
     "@typescript-eslint/quotes": "off",
