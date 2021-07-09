@@ -3,14 +3,10 @@ import { FetchResult } from "apollo-link";
 import React from "react";
 
 import APIProxy from "../api/APIProxy";
+import { ApolloErrorWithUserInput } from "../data/ApolloClientManager/types";
 import { MutationOptions } from "../mutations";
 import { useSaleorClient } from "./helpers";
-import {
-  ApolloErrorWithUserInput,
-  Options,
-  ReturnData,
-  Variables,
-} from "./types";
+import { Options, ReturnData, Variables } from "./types";
 
 type MutationUpdaterFn<TData = Record<string, any>> = (
   proxy: DataProxy,

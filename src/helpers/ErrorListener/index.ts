@@ -1,7 +1,7 @@
 import { DataErrorAuthTypes } from "../../api/Auth/types";
 import { DataErrorCheckoutTypes } from "../../api/Checkout/types";
 import { ErrorCartTypes } from "../../jobs/Cart";
-import { ApolloErrorWithUserInput } from "../../react/types";
+import { ApolloErrorWithUserInput } from "../../data/ApolloClientManager/types";
 
 import { IErrorListener } from "./types";
 

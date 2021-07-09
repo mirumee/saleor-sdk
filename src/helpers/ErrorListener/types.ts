@@ -1,4 +1,4 @@
-import { ApolloErrorWithUserInput } from "../../react/types";
+import { ApolloErrorWithUserInput } from "../../data/ApolloClientManager/types";
 
 export interface IErrorListener {
   addOnErrorListener: (

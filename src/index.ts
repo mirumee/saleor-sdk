@@ -142,8 +142,3 @@ export * from "./cache";
 export * from "./links";
 export * from "./client";
 export * from "./gqlTypes/globalTypes";
-
-// FIXME: It's imported here because it's not a monorepo yet
-/* eslint-disable import/no-cycle */
-export * from "./react";
-/* eslint-enable */

@@ -1,11 +1,4 @@
-import { ApolloError } from "apollo-client";
 import APIProxy from "../api/APIProxy";
-
-export interface ApolloErrorWithUserInput extends ApolloError {
-  extraInfo: {
-    userInputErrors?: any[];
-  };
-}
 
 export type Variables<T extends keyof APIProxy> = APIProxy[T] extends (
   variables: infer V,

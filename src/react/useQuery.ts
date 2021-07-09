@@ -2,15 +2,11 @@ import { isEqual } from "apollo-utilities";
 import React from "react";
 
 import APIProxy from "../api/APIProxy";
+import { ApolloErrorWithUserInput } from "../data/ApolloClientManager/types";
 import { RequireAtLeastOne } from "../tsHelpers";
 import { useSaleorClient } from "./helpers";
 import { useAuth } from "./hooks";
-import {
-  ApolloErrorWithUserInput,
-  Options,
-  Variables,
-  WatchQueryReturnData,
-} from "./types";
+import { Options, Variables, WatchQueryReturnData } from "./types";
 
 type OmittedOptions<T extends keyof APIProxy> = Omit<
   Options<T>,
