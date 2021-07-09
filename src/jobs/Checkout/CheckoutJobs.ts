@@ -18,6 +18,7 @@ import {
   SetBillingAddressWithEmailJobInput,
 } from "./types";
 import { JobsHandler } from "../JobsHandler";
+import { InitializePaymentVariables } from "../../mutations/gqlTypes/InitializePayment";
 
 export type PromiseCheckoutJobRunResponse = Promise<
   JobRunResponse<DataErrorCheckoutTypes, FunctionErrorCheckoutTypes>
@@ -327,6 +328,25 @@ class CheckoutJobs extends JobsHandler<{}> {
       token: data?.token,
       total: data?.total,
     });
+    return { data };
+  };
+
+  initializePayment = async (
+    variables: InitializePaymentVariables
+  ): PromiseCheckoutJobRunResponse => {
+    const { data, error } = await this.apolloClientManager.initializePayment(
+      variables
+    );
+
+    if (error) {
+      return {
+        dataError: {
+          error,
+          type: DataErrorCheckoutTypes.INITIALIZE_PAYMENT,
+        },
+      };
+    }
+
     return { data };
   };
 

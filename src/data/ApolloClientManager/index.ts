@@ -73,6 +73,10 @@ import {
   UpdateCheckoutShippingMethod,
   UpdateCheckoutShippingMethodVariables,
 } from "../../mutations/gqlTypes/UpdateCheckoutShippingMethod";
+import {
+  InitializePayment,
+  InitializePaymentVariables,
+} from "../../mutations/gqlTypes/InitializePayment";
 import * as CheckoutQueries from "../../queries/checkout";
 import { CheckoutDetails } from "../../queries/gqlTypes/CheckoutDetails";
 import {
@@ -924,6 +928,39 @@ export class ApolloClientManager {
       if (data?.checkoutPaymentCreate?.payment) {
         return {
           data: this.constructPaymentModel(data.checkoutPaymentCreate.payment),
+        };
+      }
+      return {};
+    } catch (error) {
+      return {
+        error,
+      };
+    }
+  };
+
+  initializePayment = async (variables: InitializePaymentVariables) => {
+    try {
+      const { data, errors } = await this.client.mutate<
+        InitializePayment,
+        InitializePaymentVariables
+      >({
+        mutation: CheckoutMutations.initializePaymentMutation,
+        variables,
+      });
+
+      if (errors?.length) {
+        return {
+          error: errors,
+        };
+      }
+      if (data?.paymentInitialize?.errors.length) {
+        return {
+          error: data?.paymentInitialize?.errors,
+        };
+      }
+      if (data?.paymentInitialize?.initializedPayment) {
+        return {
+          data: data.paymentInitialize.initializedPayment,
         };
       }
       return {};

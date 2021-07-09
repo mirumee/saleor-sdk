@@ -194,6 +194,22 @@ export const createCheckoutPaymentMutation = gql`
   }
 `;
 
+export const initializePaymentMutation = gql`
+  ${paymentErrorFragment}
+  mutation InitializePayment($gateway: String!, $paymentData: JSONString) {
+    paymentInitialize(gateway: $gateway, paymentData: $paymentData) {
+      initializedPayment {
+        gateway
+        name
+        data
+      }
+      errors: paymentErrors {
+        ...PaymentError
+      }
+    }
+  }
+`;
+
 export const completeCheckoutMutation = gql`
   ${orderDetailFragment}
   ${checkoutErrorFragment}

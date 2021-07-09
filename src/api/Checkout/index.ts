@@ -1,3 +1,4 @@
+import { InitializePaymentVariables } from "../../mutations/gqlTypes/InitializePayment";
 import { PaymentGateway } from "../../fragments/gqlTypes/PaymentGateway";
 import { ErrorListener } from "../../helpers";
 import {
@@ -434,6 +435,21 @@ export class SaleorCheckoutAPI extends ErrorListener {
         ),
         type: FunctionErrorCheckoutTypes.SHIPPING_ADDRESS_NOT_SET,
       },
+      pending: false,
+    };
+  };
+
+  initializePayment = async (
+    input: InitializePaymentVariables
+  ): CheckoutResponse => {
+    const { data, dataError } = await this.jobsManager.run(
+      "checkout",
+      "initializePayment",
+      input
+    );
+    return {
+      data,
+      dataError,
       pending: false,
     };
   };
