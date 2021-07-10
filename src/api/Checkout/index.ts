@@ -416,9 +416,9 @@ export class SaleorCheckoutAPI extends ErrorListener {
         "checkout",
         "createPayment",
         {
-          ...input,
           amount,
           checkoutId,
+          ...input,
         }
       );
       return {
