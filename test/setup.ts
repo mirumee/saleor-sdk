@@ -48,6 +48,8 @@ export const setupRecording = (): Context =>
             "auth api/login caches user data",
             "auth api/refreshes the auth token",
             "auth api/logout clears user cache",
+            "auth api/verifies if token is valid",
+            "auth api/sends request to reset password",
           ].includes(req.recordingName)
         ) {
           // Make auth tests recording to ignore changes in the user/password variables

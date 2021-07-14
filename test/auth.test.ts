@@ -94,7 +94,7 @@ describe("auth api", () => {
       password: "register",
       redirectUrl: API_URI,
     });
-    expect(data?.accountRegister?.accountErrors).toHaveLength(0);
+    expect(data?.accountRegister?.errors).toHaveLength(0);
   });
 
   it("logout clears user cache", async () => {
@@ -108,5 +108,30 @@ describe("auth api", () => {
     });
     expect(cache).toBeNull();
     expect(localStorage.getItem(saleorAuthToken)).toBeNull();
+  });
+
+  it("verifies if token is valid", async () => {
+    const { data } = await saleor.auth.login({
+      email: TEST_AUTH_EMAIL,
+      password: TEST_AUTH_PASSWORD,
+    });
+
+    if (data?.tokenCreate?.token) {
+      const { data: result } = await saleor.auth.verifyToken(
+        data.tokenCreate.token
+      );
+
+      expect(result?.tokenVerify?.isValid).toBe(true);
+    }
+  });
+
+  it("sends request to reset password", async () => {
+    const { data } = await saleor.auth.requestPasswordReset({
+      channel: saleor.config.channel,
+      email: TEST_AUTH_EMAIL,
+      redirectUrl: API_URI,
+    });
+
+    expect(data?.requestPasswordReset?.errors).toHaveLength(0);
   });
 });

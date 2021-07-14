@@ -43,7 +43,7 @@ export const REGISTER = gql`
         channel: $channel
       }
     ) {
-      accountErrors {
+      errors {
         field
         message
         code
@@ -55,7 +55,7 @@ export const REGISTER = gql`
 
 export const REFRESH_TOKEN = gql`
   ${accountErrorFragment}
-  mutation RefreshToken($csrfToken: String, $refreshToken: String) {
+  mutation refreshToken($csrfToken: String, $refreshToken: String) {
     tokenRefresh(csrfToken: $csrfToken, refreshToken: $refreshToken) {
       token
       user {
@@ -68,80 +68,140 @@ export const REFRESH_TOKEN = gql`
   }
 `;
 
-// export const tokenVeryficationMutation = gql`
-//   ${accountErrorFragment}
-//   mutation VerifyToken($token: String!) {
-//     tokenVerify(token: $token) {
-//       isValid
-//       payload
-//       user {
-//         id
-//       }
-//       errors {
-//         ...AccountErrorFragment
-//       }
-//     }
-//   }
-// `;
+export const VERIFY_TOKEN = gql`
+  ${accountErrorFragment}
+  mutation verifyToken($token: String!) {
+    tokenVerify(token: $token) {
+      isValid
+      payload
+      user {
+        id
+      }
+      errors {
+        ...AccountErrorFragment
+      }
+    }
+  }
+`;
 
-// export const changeUserPassword = gql`
-//   ${accountErrorFragment}
-//   mutation PasswordChange($newPassword: String!, $oldPassword: String!) {
-//     passwordChange(newPassword: $newPassword, oldPassword: $oldPassword) {
-//       errors {
-//         ...AccountErrorFragment
-//       }
-//     }
-//   }
-// `;
+export const CHANGE_USER_PASSWORD = gql`
+  ${accountErrorFragment}
+  mutation passwordChange($newPassword: String!, $oldPassword: String!) {
+    passwordChange(newPassword: $newPassword, oldPassword: $oldPassword) {
+      errors {
+        ...AccountErrorFragment
+      }
+    }
+  }
+`;
 
-// export const resetPasswordRequest = gql`
-//   mutation ResetPasswordRequest($email: String!, $redirectUrl: String!) {
-//     requestPasswordReset(email: $email, redirectUrl: $redirectUrl) {
-//       accountErrors {
-//         field
-//         message
-//         code
-//       }
-//     }
-//   }
-// `;
+export const REQUEST_PASSWORD_RESET = gql`
+  mutation requestPasswordReset($email: String!, $redirectUrl: String!) {
+    requestPasswordReset(email: $email, redirectUrl: $redirectUrl) {
+      errors {
+        field
+        message
+        code
+      }
+    }
+  }
+`;
 
-// export const accountUpdate = gql`
-//   ${userFragment}
-//   ${accountErrorFragment}
-//   mutation AccountUpdate($input: AccountInput!) {
-//     accountUpdate(input: $input) {
-//       errors {
-//         ...AccountErrorFragment
-//       }
-//       user {
-//         ...User
-//       }
-//     }
-//   }
-// `;
+export const SET_PASSWORD = gql`
+  ${userFragment}
+  ${accountErrorFragment}
+  mutation setPassword($token: String!, $email: String!, $password: String!) {
+    setPassword(token: $token, email: $email, password: $password) {
+      errors {
+        ...AccountErrorFragment
+      }
+      token
+      user {
+        ...UserFragment
+      }
+      errors {
+        field
+        message
+        code
+      }
+    }
+  }
+`;
 
-// export const setPassword = gql`
-//   ${userFragment}
-//   ${accountErrorFragment}
-//   mutation SetPassword($token: String!, $email: String!, $password: String!) {
-//     setPassword(token: $token, email: $email, password: $password) {
-//       errors {
-//         ...AccountErrorFragment
-//       }
-//       token
-//       user {
-//         ...User
-//       }
-//       accountErrors {
-//         field
-//         message
-//         code
-//       }
-//     }
-//   }
-// `;
+export const UPDATE_ACCOUNT = gql`
+  ${userFragment}
+  ${accountErrorFragment}
+  mutation accountUpdate($input: AccountInput!) {
+    accountUpdate(input: $input) {
+      errors {
+        ...AccountErrorFragment
+      }
+      user {
+        ...UserFragment
+      }
+    }
+  }
+`;
+
+export const SET_ACCOUNT_DEFAULT_ADDRESS = gql`
+  ${userFragment}
+  ${accountErrorFragment}
+  mutation setAccountDefaultAddress($id: ID!, $type: AddressTypeEnum!) {
+    accountSetDefaultAddress(id: $id, type: $type) {
+      errors {
+        ...AccountErrorFragment
+      }
+      user {
+        ...UserFragment
+      }
+    }
+  }
+`;
+
+export const DELETE_ACCOUNT_ADDRESS = gql`
+  ${userFragment}
+  ${accountErrorFragment}
+  mutation deleteAccountAddress($addressId: ID!) {
+    accountAddressDelete(id: $addressId) {
+      errors {
+        ...AccountErrorFragment
+      }
+      user {
+        ...UserFragment
+      }
+    }
+  }
+`;
+
+export const CREATE_ACCOUNT_ADDRESS = gql`
+  ${userFragment}
+  ${accountErrorFragment}
+  mutation createAccountAddress($input: AddressInput!) {
+    accountAddressCreate(input: $input) {
+      errors {
+        ...AccountErrorFragment
+      }
+      user {
+        ...UserFragment
+      }
+    }
+  }
+`;
+
+export const UPDATE_ACCOUNT_ADDRESS = gql`
+  ${userFragment}
+  ${accountErrorFragment}
+  mutation updateAccountAddress($input: AddressInput!, $id: ID!) {
+    accountAddressUpdate(input: $input, id: $id) {
+      errors {
+        ...AccountErrorFragment
+      }
+      user {
+        ...UserFragment
+      }
+    }
+  }
+`;
 
 // export const updateCheckoutLineMutation = gql`
 //   ${checkoutFragment}
@@ -352,66 +412,6 @@ export const REFRESH_TOKEN = gql`
 //       }
 //       confirmationNeeded
 //       confirmationData
-//     }
-//   }
-// `;
-
-// export const setCustomerDefaultAddress = gql`
-//   ${userFragment}
-//   ${accountErrorFragment}
-//   mutation SetCustomerDefaultAddress($id: ID!, $type: AddressTypeEnum!) {
-//     accountSetDefaultAddress(id: $id, type: $type) {
-//       errors {
-//         ...AccountErrorFragment
-//       }
-//       user {
-//         ...User
-//       }
-//     }
-//   }
-// `;
-
-// export const deleteUserAddress = gql`
-//   ${userFragment}
-//   ${accountErrorFragment}
-//   mutation DeleteUserAddress($addressId: ID!) {
-//     accountAddressDelete(id: $addressId) {
-//       errors {
-//         ...AccountErrorFragment
-//       }
-//       user {
-//         ...User
-//       }
-//     }
-//   }
-// `;
-
-// export const createUserAddress = gql`
-//   ${userFragment}
-//   ${accountErrorFragment}
-//   mutation CreateUserAddress($input: AddressInput!) {
-//     accountAddressCreate(input: $input) {
-//       errors {
-//         ...AccountErrorFragment
-//       }
-//       user {
-//         ...User
-//       }
-//     }
-//   }
-// `;
-
-// export const updateUserAddress = gql`
-//   ${userFragment}
-//   ${accountErrorFragment}
-//   mutation UpdateUserAddress($input: AddressInput!, $id: ID!) {
-//     accountAddressUpdate(input: $input, id: $id) {
-//       errors {
-//         ...AccountErrorFragment
-//       }
-//       user {
-//         ...User
-//       }
 //     }
 //   }
 // `;
