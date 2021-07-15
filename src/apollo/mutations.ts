@@ -2,9 +2,9 @@ import { gql } from "@apollo/client";
 
 import {
   accountErrorFragment,
-  // checkoutErrorFragment,
+  checkoutErrorFragment,
+  checkoutFragment,
   // paymentErrorFragment,
-  // checkoutFragment,
   // orderDetailFragment,
   // paymentFragment,
   userFragment,
@@ -49,6 +49,21 @@ export const REGISTER = gql`
         code
       }
       requiresConfirmation
+    }
+  }
+`;
+
+export const CREATE_CHECKOUT = gql`
+  ${checkoutFragment}
+  ${checkoutErrorFragment}
+  mutation CreateCheckout($checkoutInput: CheckoutCreateInput!) {
+    checkoutCreate(input: $checkoutInput) {
+      errors {
+        ...CheckoutError
+      }
+      checkout {
+        ...Checkout
+      }
     }
   }
 `;
@@ -153,21 +168,6 @@ export const REGISTER = gql`
 //       }
 //       errors {
 //         ...CheckoutError
-//       }
-//     }
-//   }
-// `;
-
-// export const createCheckoutMutation = gql`
-//   ${checkoutFragment}
-//   ${checkoutErrorFragment}
-//   mutation CreateCheckout($checkoutInput: CheckoutCreateInput!) {
-//     checkoutCreate(input: $checkoutInput) {
-//       errors {
-//         ...CheckoutError
-//       }
-//       checkout {
-//         ...Checkout
 //       }
 //     }
 //   }

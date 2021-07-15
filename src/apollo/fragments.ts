@@ -61,64 +61,64 @@ export const userFragment = gql`
 //   }
 // `;
 
-// export const checkoutPriceFragment = gql`
-//   fragment Price on TaxedMoney {
-//     gross {
-//       amount
-//       currency
-//     }
-//     net {
-//       amount
-//       currency
-//     }
-//   }
-// `;
+export const priceFragment = gql`
+  fragment PriceFragment on TaxedMoney {
+    gross {
+      amount
+      currency
+    }
+    net {
+      amount
+      currency
+    }
+  }
+`;
 
-// export const checkoutProductVariantFragment = gql`
-//   ${checkoutPriceFragment}
-//   fragment ProductVariant on ProductVariant {
-//     id
-//     name
-//     sku
-//     quantityAvailable
-//     pricing {
-//       onSale
-//       priceUndiscounted {
-//         ...Price
-//       }
-//       price {
-//         ...Price
-//       }
-//     }
-//     attributes {
-//       attribute {
-//         id
-//         name
-//       }
-//       values {
-//         id
-//         name
-//         value: name
-//       }
-//     }
-//     product {
-//       id
-//       name
-//       slug
-//       thumbnail {
-//         url
-//         alt
-//       }
-//       thumbnail2x: thumbnail(size: 510) {
-//         url
-//       }
-//       productType {
-//         id
-//         isShippingRequired
-//       }
-//     }
-//   }
-// `;
+export const checkoutProductVariantFragment = gql`
+  ${priceFragment}
+  fragment ProductVariant on ProductVariant {
+    id
+    name
+    sku
+    quantityAvailable
+    pricing {
+      onSale
+      priceUndiscounted {
+        ...PriceFragment
+      }
+      price {
+        ...PriceFragment
+      }
+    }
+    attributes {
+      attribute {
+        id
+        name
+      }
+      values {
+        id
+        name
+        value: name
+      }
+    }
+    product {
+      id
+      name
+      slug
+      thumbnail {
+        url
+        alt
+      }
+      thumbnail2x: thumbnail(size: 510) {
+        url
+      }
+      productType {
+        id
+        isShippingRequired
+      }
+    }
+  }
+`;
 
 // export const checkoutShippingMethodFragment = gql`
 //   fragment ShippingMethod on ShippingMethod {
@@ -250,17 +250,17 @@ export const userFragment = gql`
 //   }
 // `;
 
-// export const paymentGatewayFragment = gql`
-//   fragment PaymentGateway on PaymentGateway {
-//     id
-//     name
-//     config {
-//       field
-//       value
-//     }
-//     currencies
-//   }
-// `;
+export const paymentGatewayFragment = gql`
+  fragment PaymentGateway on PaymentGateway {
+    id
+    name
+    config {
+      field
+      value
+    }
+    currencies
+  }
+`;
 
 // export const userFragment = gql`
 //   ${checkoutAddressFragment}
@@ -341,87 +341,87 @@ export const userFragment = gql`
 //   }
 // `;
 
-// export const checkoutShippingMethodFragment = gql`
-//   fragment ShippingMethod on ShippingMethod {
-//     id
-//     name
-//     price {
-//       currency
-//       amount
-//     }
-//   }
-// `;
+export const checkoutShippingMethodFragment = gql`
+  fragment ShippingMethod on ShippingMethod {
+    id
+    name
+    price {
+      currency
+      amount
+    }
+  }
+`;
 
-// export const checkoutLineFragment = gql`
-//   ${checkoutPriceFragment}
-//   ${checkoutProductVariantFragment}
-//   fragment CheckoutLine on CheckoutLine {
-//     id
-//     quantity
-//     totalPrice {
-//       ...Price
-//     }
-//     variant {
-//       ...ProductVariant
-//     }
-//   }
-// `;
+export const checkoutLineFragment = gql`
+  ${priceFragment}
+  ${checkoutProductVariantFragment}
+  fragment CheckoutLine on CheckoutLine {
+    id
+    quantity
+    totalPrice {
+      ...PriceFragment
+    }
+    variant {
+      ...ProductVariant
+    }
+  }
+`;
 
-// export const checkoutFragment = gql`
-//   ${checkoutLineFragment}
-//   ${checkoutAddressFragment}
-//   ${checkoutPriceFragment}
-//   ${checkoutShippingMethodFragment}
-//   ${paymentGatewayFragment}
-//   fragment Checkout on Checkout {
-//     token
-//     id
-//     totalPrice {
-//       ...Price
-//     }
-//     subtotalPrice {
-//       ...Price
-//     }
-//     billingAddress {
-//       ...Address
-//     }
-//     shippingAddress {
-//       ...Address
-//     }
-//     email
-//     availableShippingMethods {
-//       ...ShippingMethod
-//     }
-//     shippingMethod {
-//       ...ShippingMethod
-//     }
-//     shippingPrice {
-//       ...Price
-//     }
-//     lines {
-//       ...CheckoutLine
-//     }
-//     isShippingRequired
-//     discount {
-//       currency
-//       amount
-//     }
-//     discountName
-//     translatedDiscountName
-//     voucherCode
-//     availablePaymentGateways {
-//       ...PaymentGateway
-//     }
-//   }
-// `;
+export const checkoutFragment = gql`
+  ${checkoutLineFragment}
+  ${addressFragment}
+  ${priceFragment}
+  ${checkoutShippingMethodFragment}
+  ${paymentGatewayFragment}
+  fragment Checkout on Checkout {
+    token
+    id
+    totalPrice {
+      ...PriceFragment
+    }
+    subtotalPrice {
+      ...PriceFragment
+    }
+    billingAddress {
+      ...AddressFragment
+    }
+    shippingAddress {
+      ...AddressFragment
+    }
+    email
+    availableShippingMethods {
+      ...ShippingMethod
+    }
+    shippingMethod {
+      ...ShippingMethod
+    }
+    shippingPrice {
+      ...PriceFragment
+    }
+    lines {
+      ...CheckoutLine
+    }
+    isShippingRequired
+    discount {
+      currency
+      amount
+    }
+    discountName
+    translatedDiscountName
+    voucherCode
+    availablePaymentGateways {
+      ...PaymentGateway
+    }
+  }
+`;
 
-// export const checkoutErrorFragment = gql`
-//   fragment CheckoutError on CheckoutError {
-//     code
-//     field
-//     message
-//   }
-// `;
+export const checkoutErrorFragment = gql`
+  fragment CheckoutError on CheckoutError {
+    code
+    field
+    message
+  }
+`;
 
 // export const paymentErrorFragment = gql`
 //   fragment PaymentError on PaymentError {

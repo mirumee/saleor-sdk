@@ -15,6 +15,7 @@ generates:
       enumsAsTypes: true
       skipTypename: true
       maybeValue: T
+      dedupeFragments: true
   src/apollo/apollo-helpers.ts:
     plugins:
       - typescript-apollo-client-helpers

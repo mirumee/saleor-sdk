@@ -11298,6 +11298,44 @@ export type UserFragment = (
   & { defaultShippingAddress?: Maybe<AddressFragment>, defaultBillingAddress?: Maybe<AddressFragment>, addresses?: Maybe<Array<Maybe<AddressFragment>>> }
 );
 
+export type PriceFragment = { gross: Pick<Money, 'amount' | 'currency'>, net: Pick<Money, 'amount' | 'currency'> };
+
+export type ProductVariantFragment = (
+  Pick<ProductVariant, 'id' | 'name' | 'sku' | 'quantityAvailable'>
+  & { pricing?: Maybe<(
+    Pick<VariantPricingInfo, 'onSale'>
+    & { priceUndiscounted?: Maybe<PriceFragment>, price?: Maybe<PriceFragment> }
+  )>, attributes: Array<{ attribute: Pick<Attribute, 'id' | 'name'>, values: Array<Maybe<(
+      Pick<AttributeValue, 'id' | 'name'>
+      & { value: AttributeValue['name'] }
+    )>> }>, product: (
+    Pick<Product, 'id' | 'name' | 'slug'>
+    & { thumbnail?: Maybe<Pick<Image, 'url' | 'alt'>>, thumbnail2x?: Maybe<Pick<Image, 'url'>>, productType: Pick<ProductType, 'id' | 'isShippingRequired'> }
+  ) }
+);
+
+export type PaymentGatewayFragment = (
+  Pick<PaymentGateway, 'id' | 'name' | 'currencies'>
+  & { config: Array<Pick<GatewayConfigLine, 'field' | 'value'>> }
+);
+
+export type ShippingMethodFragment = (
+  Pick<ShippingMethod, 'id' | 'name'>
+  & { price?: Maybe<Pick<Money, 'currency' | 'amount'>> }
+);
+
+export type CheckoutLineFragment = (
+  Pick<CheckoutLine, 'id' | 'quantity'>
+  & { totalPrice?: Maybe<PriceFragment>, variant: ProductVariantFragment }
+);
+
+export type CheckoutFragment = (
+  Pick<Checkout, 'token' | 'id' | 'email' | 'isShippingRequired' | 'discountName' | 'translatedDiscountName' | 'voucherCode'>
+  & { totalPrice?: Maybe<PriceFragment>, subtotalPrice?: Maybe<PriceFragment>, billingAddress?: Maybe<AddressFragment>, shippingAddress?: Maybe<AddressFragment>, availableShippingMethods: Array<Maybe<ShippingMethodFragment>>, shippingMethod?: Maybe<ShippingMethodFragment>, shippingPrice?: Maybe<PriceFragment>, lines?: Maybe<Array<Maybe<CheckoutLineFragment>>>, discount?: Maybe<Pick<Money, 'currency' | 'amount'>>, availablePaymentGateways: Array<PaymentGatewayFragment> }
+);
+
+export type CheckoutErrorFragment = Pick<CheckoutError, 'code' | 'field' | 'message'>;
+
 export type LoginMutationVariables = Exact<{
   email: Scalars['String'];
   password: Scalars['String'];
@@ -11321,6 +11359,13 @@ export type RegisterMutation = { accountRegister?: Maybe<(
     Pick<AccountRegister, 'requiresConfirmation'>
     & { accountErrors: Array<Pick<AccountError, 'field' | 'message' | 'code'>> }
   )> };
+
+export type CreateCheckoutMutationVariables = Exact<{
+  checkoutInput: CheckoutCreateInput;
+}>;
+
+
+export type CreateCheckoutMutation = { checkoutCreate?: Maybe<{ errors: Array<CheckoutErrorFragment>, checkout?: Maybe<CheckoutFragment> }> };
 
 export type UserDetailsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -11375,6 +11420,149 @@ export const UserFragmentDoc = gql`
   }
 }
     ${AddressFragmentDoc}`;
+export const PriceFragmentDoc = gql`
+    fragment PriceFragment on TaxedMoney {
+  gross {
+    amount
+    currency
+  }
+  net {
+    amount
+    currency
+  }
+}
+    `;
+export const ShippingMethodFragmentDoc = gql`
+    fragment ShippingMethod on ShippingMethod {
+  id
+  name
+  price {
+    currency
+    amount
+  }
+}
+    `;
+export const ProductVariantFragmentDoc = gql`
+    fragment ProductVariant on ProductVariant {
+  id
+  name
+  sku
+  quantityAvailable
+  pricing {
+    onSale
+    priceUndiscounted {
+      ...PriceFragment
+    }
+    price {
+      ...PriceFragment
+    }
+  }
+  attributes {
+    attribute {
+      id
+      name
+    }
+    values {
+      id
+      name
+      value: name
+    }
+  }
+  product {
+    id
+    name
+    slug
+    thumbnail {
+      url
+      alt
+    }
+    thumbnail2x: thumbnail(size: 510) {
+      url
+    }
+    productType {
+      id
+      isShippingRequired
+    }
+  }
+}
+    ${PriceFragmentDoc}`;
+export const CheckoutLineFragmentDoc = gql`
+    fragment CheckoutLine on CheckoutLine {
+  id
+  quantity
+  totalPrice {
+    ...PriceFragment
+  }
+  variant {
+    ...ProductVariant
+  }
+}
+    ${PriceFragmentDoc}
+${ProductVariantFragmentDoc}`;
+export const PaymentGatewayFragmentDoc = gql`
+    fragment PaymentGateway on PaymentGateway {
+  id
+  name
+  config {
+    field
+    value
+  }
+  currencies
+}
+    `;
+export const CheckoutFragmentDoc = gql`
+    fragment Checkout on Checkout {
+  token
+  id
+  totalPrice {
+    ...PriceFragment
+  }
+  subtotalPrice {
+    ...PriceFragment
+  }
+  billingAddress {
+    ...AddressFragment
+  }
+  shippingAddress {
+    ...AddressFragment
+  }
+  email
+  availableShippingMethods {
+    ...ShippingMethod
+  }
+  shippingMethod {
+    ...ShippingMethod
+  }
+  shippingPrice {
+    ...PriceFragment
+  }
+  lines {
+    ...CheckoutLine
+  }
+  isShippingRequired
+  discount {
+    currency
+    amount
+  }
+  discountName
+  translatedDiscountName
+  voucherCode
+  availablePaymentGateways {
+    ...PaymentGateway
+  }
+}
+    ${PriceFragmentDoc}
+${AddressFragmentDoc}
+${ShippingMethodFragmentDoc}
+${CheckoutLineFragmentDoc}
+${PaymentGatewayFragmentDoc}`;
+export const CheckoutErrorFragmentDoc = gql`
+    fragment CheckoutError on CheckoutError {
+  code
+  field
+  message
+}
+    `;
 export const LoginDocument = gql`
     mutation login($email: String!, $password: String!) {
   tokenCreate(email: $email, password: $password) {
@@ -11390,7 +11578,8 @@ export const LoginDocument = gql`
   }
 }
     ${AccountErrorFragmentDoc}
-${UserFragmentDoc}`;
+${UserFragmentDoc}
+${AddressFragmentDoc}`;
 export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutationVariables>;
 
 /**
@@ -11461,6 +11650,51 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const CreateCheckoutDocument = gql`
+    mutation CreateCheckout($checkoutInput: CheckoutCreateInput!) {
+  checkoutCreate(input: $checkoutInput) {
+    errors {
+      ...CheckoutError
+    }
+    checkout {
+      ...Checkout
+    }
+  }
+}
+    ${CheckoutErrorFragmentDoc}
+${CheckoutFragmentDoc}
+${PriceFragmentDoc}
+${AddressFragmentDoc}
+${ShippingMethodFragmentDoc}
+${CheckoutLineFragmentDoc}
+${ProductVariantFragmentDoc}
+${PaymentGatewayFragmentDoc}`;
+export type CreateCheckoutMutationFn = Apollo.MutationFunction<CreateCheckoutMutation, CreateCheckoutMutationVariables>;
+
+/**
+ * __useCreateCheckoutMutation__
+ *
+ * To run a mutation, you first call `useCreateCheckoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCheckoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCheckoutMutation, { data, loading, error }] = useCreateCheckoutMutation({
+ *   variables: {
+ *      checkoutInput: // value for 'checkoutInput'
+ *   },
+ * });
+ */
+export function useCreateCheckoutMutation(baseOptions?: Apollo.MutationHookOptions<CreateCheckoutMutation, CreateCheckoutMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCheckoutMutation, CreateCheckoutMutationVariables>(CreateCheckoutDocument, options);
+      }
+export type CreateCheckoutMutationHookResult = ReturnType<typeof useCreateCheckoutMutation>;
+export type CreateCheckoutMutationResult = Apollo.MutationResult<CreateCheckoutMutation>;
+export type CreateCheckoutMutationOptions = Apollo.BaseMutationOptions<CreateCheckoutMutation, CreateCheckoutMutationVariables>;
 export const UserDetailsDocument = gql`
     query UserDetails {
   me {
@@ -11468,7 +11702,8 @@ export const UserDetailsDocument = gql`
   }
   authenticated @client
 }
-    ${UserFragmentDoc}`;
+    ${UserFragmentDoc}
+${AddressFragmentDoc}`;
 
 /**
  * __useUserDetailsQuery__
