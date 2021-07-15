@@ -342,7 +342,7 @@ export const paymentGatewayFragment = gql`
 // `;
 
 export const checkoutShippingMethodFragment = gql`
-  fragment ShippingMethod on ShippingMethod {
+  fragment ShippingMethodFragment on ShippingMethod {
     id
     name
     price {
@@ -355,7 +355,7 @@ export const checkoutShippingMethodFragment = gql`
 export const checkoutLineFragment = gql`
   ${priceFragment}
   ${checkoutProductVariantFragment}
-  fragment CheckoutLine on CheckoutLine {
+  fragment CheckoutLineFragment on CheckoutLine {
     id
     quantity
     totalPrice {
@@ -373,7 +373,7 @@ export const checkoutFragment = gql`
   ${priceFragment}
   ${checkoutShippingMethodFragment}
   ${paymentGatewayFragment}
-  fragment Checkout on Checkout {
+  fragment CheckoutFragment on Checkout {
     token
     id
     totalPrice {
@@ -390,16 +390,16 @@ export const checkoutFragment = gql`
     }
     email
     availableShippingMethods {
-      ...ShippingMethod
+      ...ShippingMethodShippingMethodFragment
     }
     shippingMethod {
-      ...ShippingMethod
+      ...ShippingMethodShippingMethodFragment
     }
     shippingPrice {
       ...PriceFragment
     }
     lines {
-      ...CheckoutLine
+      ...CheckoutLineFragment
     }
     isShippingRequired
     discount {
@@ -416,7 +416,7 @@ export const checkoutFragment = gql`
 `;
 
 export const checkoutErrorFragment = gql`
-  fragment CheckoutError on CheckoutError {
+  fragment CheckoutErrorFragment on CheckoutError {
     code
     field
     message

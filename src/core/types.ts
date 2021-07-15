@@ -1,5 +1,6 @@
 import {
   AccountRegisterInput,
+  AddCheckoutLinesMutationVariables,
   CheckoutCreateInput,
   MutationTokenCreateArgs,
 } from "../apollo/types";
@@ -13,3 +14,4 @@ export type registerOpts = AccountRegisterInput;
 export type loginOpts = MutationTokenCreateArgs;
 
 export type createCheckoutOpts = CheckoutCreateInput;
+export type addLinesCheckoutOpts = AddCheckoutLinesMutationVariables;

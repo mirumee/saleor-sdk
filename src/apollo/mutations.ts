@@ -59,10 +59,25 @@ export const CREATE_CHECKOUT = gql`
   mutation CreateCheckout($checkoutInput: CheckoutCreateInput!) {
     checkoutCreate(input: $checkoutInput) {
       errors {
-        ...CheckoutError
+        ...CheckoutErrorFragment
       }
       checkout {
-        ...Checkout
+        ...CheckoutFragment
+      }
+    }
+  }
+`;
+
+export const ADD_LINES = gql`
+  ${checkoutFragment}
+  ${checkoutErrorFragment}
+  mutation AddCheckoutLines($checkoutId: ID!, $lines: [CheckoutLineInput]!) {
+    checkoutLinesAdd(checkoutId: $checkoutId, lines: $lines) {
+      checkout {
+        ...CheckoutFragment
+      }
+      errors {
+        ...CheckoutErrorFragment
       }
     }
   }
