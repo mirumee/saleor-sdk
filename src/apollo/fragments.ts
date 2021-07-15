@@ -262,26 +262,6 @@ export const userFragment = gql`
 //   }
 // `;
 
-// export const userFragment = gql`
-//   ${checkoutAddressFragment}
-//   fragment User on User {
-//     id
-//     email
-//     firstName
-//     lastName
-//     isStaff
-//     defaultShippingAddress {
-//       ...Address
-//     }
-//     defaultBillingAddress {
-//       ...Address
-//     }
-//     addresses {
-//       ...Address
-//     }
-//   }
-// `;
-
 // export const checkoutPriceFragment = gql`
 //   fragment Price on TaxedMoney {
 //     gross {
