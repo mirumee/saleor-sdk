@@ -390,10 +390,10 @@ export const checkoutFragment = gql`
     }
     email
     availableShippingMethods {
-      ...ShippingMethodShippingMethodFragment
+      ...ShippingMethodFragment
     }
     shippingMethod {
-      ...ShippingMethodShippingMethodFragment
+      ...ShippingMethodFragment
     }
     shippingPrice {
       ...PriceFragment

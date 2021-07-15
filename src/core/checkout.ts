@@ -4,6 +4,7 @@ import {
   NormalizedCacheObject,
 } from "@apollo/client";
 import { ADD_LINES, CREATE_CHECKOUT } from "../apollo/mutations";
+import { CHECKOUT } from "../apollo/queries";
 import {
   AddCheckoutLinesMutation,
   CreateCheckoutMutation,
@@ -35,6 +36,15 @@ export const checkout = (
       variables: {
         checkoutInput: {
           ...opts,
+        },
+      },
+    });
+
+    client.writeQuery({
+      query: CHECKOUT,
+      data: {
+        checkout: {
+          ...result.data.checkoutCreate.checkout,
         },
       },
     });

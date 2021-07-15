@@ -1,5 +1,6 @@
 import { gql } from "@apollo/client";
 import {
+  checkoutFragment,
   // checkoutFragment,
   // checkoutProductVariantFragment,
   userFragment,
@@ -15,14 +16,14 @@ export const USER = gql`
   }
 `;
 
-// export const checkoutDetails = gql`
-//   ${checkoutFragment}
-//   query CheckoutDetails($token: UUID!) {
-//     checkout(token: $token) {
-//       ...Checkout
-//     }
-//   }
-// `;
+export const CHECKOUT = gql`
+  ${checkoutFragment}
+  query CheckoutDetails($token: UUID!) {
+    checkout(token: $token) {
+      ...CheckoutFragment
+    }
+  }
+`;
 
 // export const userCheckoutTokenList = gql`
 //   query UserCheckoutTokenList($channel: String) {

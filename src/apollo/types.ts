@@ -11383,6 +11383,13 @@ export type UserDetailsQuery = (
   & { me?: Maybe<UserFragment> }
 );
 
+export type CheckoutDetailsQueryVariables = Exact<{
+  token: Scalars['UUID'];
+}>;
+
+
+export type CheckoutDetailsQuery = { checkout?: Maybe<CheckoutFragment> };
+
 export const AccountErrorFragmentDoc = gql`
     fragment AccountErrorFragment on AccountError {
   code
@@ -11441,7 +11448,7 @@ export const PriceFragmentDoc = gql`
 }
     `;
 export const ShippingMethodFragmentDoc = gql`
-    fragment ShippingMethod on ShippingMethod {
+    fragment ShippingMethodFragment on ShippingMethod {
   id
   name
   price {
@@ -11495,7 +11502,7 @@ export const ProductVariantFragmentDoc = gql`
 }
     ${PriceFragmentDoc}`;
 export const CheckoutLineFragmentDoc = gql`
-    fragment CheckoutLine on CheckoutLine {
+    fragment CheckoutLineFragment on CheckoutLine {
   id
   quantity
   totalPrice {
@@ -11519,7 +11526,7 @@ export const PaymentGatewayFragmentDoc = gql`
 }
     `;
 export const CheckoutFragmentDoc = gql`
-    fragment Checkout on Checkout {
+    fragment CheckoutFragment on Checkout {
   token
   id
   totalPrice {
@@ -11536,16 +11543,16 @@ export const CheckoutFragmentDoc = gql`
   }
   email
   availableShippingMethods {
-    ...ShippingMethod
+    ...ShippingMethodFragment
   }
   shippingMethod {
-    ...ShippingMethod
+    ...ShippingMethodFragment
   }
   shippingPrice {
     ...PriceFragment
   }
   lines {
-    ...CheckoutLine
+    ...CheckoutLineFragment
   }
   isShippingRequired
   discount {
@@ -11565,7 +11572,7 @@ ${ShippingMethodFragmentDoc}
 ${CheckoutLineFragmentDoc}
 ${PaymentGatewayFragmentDoc}`;
 export const CheckoutErrorFragmentDoc = gql`
-    fragment CheckoutError on CheckoutError {
+    fragment CheckoutErrorFragment on CheckoutError {
   code
   field
   message
@@ -11662,10 +11669,10 @@ export const CreateCheckoutDocument = gql`
     mutation CreateCheckout($checkoutInput: CheckoutCreateInput!) {
   checkoutCreate(input: $checkoutInput) {
     errors {
-      ...CheckoutError
+      ...CheckoutErrorFragment
     }
     checkout {
-      ...Checkout
+      ...CheckoutFragment
     }
   }
 }
@@ -11707,10 +11714,10 @@ export const AddCheckoutLinesDocument = gql`
     mutation AddCheckoutLines($checkoutId: ID!, $lines: [CheckoutLineInput]!) {
   checkoutLinesAdd(checkoutId: $checkoutId, lines: $lines) {
     checkout {
-      ...Checkout
+      ...CheckoutFragment
     }
     errors {
-      ...CheckoutError
+      ...CheckoutErrorFragment
     }
   }
 }
@@ -11785,3 +11792,44 @@ export function useUserDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type UserDetailsQueryHookResult = ReturnType<typeof useUserDetailsQuery>;
 export type UserDetailsLazyQueryHookResult = ReturnType<typeof useUserDetailsLazyQuery>;
 export type UserDetailsQueryResult = Apollo.QueryResult<UserDetailsQuery, UserDetailsQueryVariables>;
+export const CheckoutDetailsDocument = gql`
+    query CheckoutDetails($token: UUID!) {
+  checkout(token: $token) {
+    ...CheckoutFragment
+  }
+}
+    ${CheckoutFragmentDoc}
+${PriceFragmentDoc}
+${AddressFragmentDoc}
+${ShippingMethodFragmentDoc}
+${CheckoutLineFragmentDoc}
+${ProductVariantFragmentDoc}
+${PaymentGatewayFragmentDoc}`;
+
+/**
+ * __useCheckoutDetailsQuery__
+ *
+ * To run a query within a React component, call `useCheckoutDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckoutDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCheckoutDetailsQuery({
+ *   variables: {
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useCheckoutDetailsQuery(baseOptions: Apollo.QueryHookOptions<CheckoutDetailsQuery, CheckoutDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CheckoutDetailsQuery, CheckoutDetailsQueryVariables>(CheckoutDetailsDocument, options);
+      }
+export function useCheckoutDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CheckoutDetailsQuery, CheckoutDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CheckoutDetailsQuery, CheckoutDetailsQueryVariables>(CheckoutDetailsDocument, options);
+        }
+export type CheckoutDetailsQueryHookResult = ReturnType<typeof useCheckoutDetailsQuery>;
+export type CheckoutDetailsLazyQueryHookResult = ReturnType<typeof useCheckoutDetailsLazyQuery>;
+export type CheckoutDetailsQueryResult = Apollo.QueryResult<CheckoutDetailsQuery, CheckoutDetailsQueryVariables>;
